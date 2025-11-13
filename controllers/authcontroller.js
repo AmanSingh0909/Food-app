@@ -55,7 +55,7 @@ const loginController = async (req, resp) => {
             })
         }
         //check user
-        const user = await userModel.findOne({ email } )
+        const user = await userModel.findOne({ email })
         if (!user) {
             return resp.status(404).send({
                 success: false,
@@ -64,14 +64,14 @@ const loginController = async (req, resp) => {
         }
         //check user password | compare password
         const isMatch = await bcrypt.compare(password, user.password)
-        if (!isMatch){
+        if (!isMatch) {
             return resp.status(500).send({
-                success:false,
+                success: false,
                 message: "Invalid Credentials"
             })
         }
         //token
-        const token = JWT.sign({id:user._id}, process.env.JWT_SECRET, {
+        const token = JWT.sign({ id: user._id }, process.env.JWT_SECRET, {
             expiresIn: "7d"
         })
         user.password = undefined
