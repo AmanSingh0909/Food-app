@@ -1,36 +1,37 @@
 // GET USER INFGO
 
 const userModel = require("../models/userModel");
+const bcrypt = require('bcryptjs')
 
 const getuserController = async (req, resp) => {
     try {
         //find user
-        const user = await userModel.findById({_id:req.user.id})
+        const user = await userModel.findById({ _id: req.user.id })
         //validation
-        if(!user){
+        if (!user) {
             return resp.status(404).send({
-                success:false,
-                message:"User Not Found"
+                success: false,
+                message: "User Not Found"
             })
         }
         //hide password
         user.password = undefined
         //resp
         resp.status(200).send({
-            success:true,
+            success: true,
             message: "User get Successfully",
             user
         })
     } catch (error) {
         console.log(error);
         resp.status(500).send({
-            success:false,
+            success: false,
             message: "Error in Get User API",
             error
         })
-        
+
     }
-    
+
 }
 // UPDATE USER
 const updateUserController = async (req, resp) => {
@@ -38,33 +39,76 @@ const updateUserController = async (req, resp) => {
         //FInd User
         const user = await userModel.findById(req.user.id)
         //validation
-        if(!user){
+        if (!user) {
             return resp.status(404).send({
-                success:false,
-                message:"user not found"
+                success: false,
+                message: "user not found"
             })
         }
         //update
-        const {userName, address, phone} = req.body
-        if(userName) user.userName = userName
-        if(address) user.address = address
-        if(phone) user.phone = phone
+        const { userName, address, phone } = req.body
+        if (userName) user.userName = userName
+        if (address) user.address = address
+        if (phone) user.phone = phone
 
         //save user
         await user.save()
         resp.status(200).send({
-            success:true,
+            success: true,
             message: "User Updated Successfully"
         })
     } catch (error) {
         console.log(error);
         resp.status(500).send({
-            success:false,
-            message:"Error in Update User API",
+            success: false,
+            message: "Error in Update User API",
             error
         })
-        
+
     }
 }
 
-module.exports = { getuserController, updateUserController }
+// Password update
+const updatePasswordController = async (req, resp) => {
+
+}
+
+// RESET PASSWORD
+const resetPasswordController = async (req, resp) => {
+    try {
+        const { email, newPassword, answer } = req.body
+        if (!email || !answer || !newPassword) {
+            return resp.status(500).send({
+                success: false,
+                message: "Please Provide All Fields"
+            })
+        }
+        const user = await userModel.findOne({ email, answer })
+        if (!user) {
+            return resp.status(500).send({
+                success: false,
+                message: "User not found or Invalid answer"
+            })
+        }
+        // Hashing password
+        var salt = bcrypt.genSaltSync(10)
+        const hashedpassword = await bcrypt.hash(newPassword, salt)
+        user.password = hashedpassword
+        await user.save()
+        resp.status(200).send({
+            success: true,
+            message: "Password Reset Successfully"
+        })
+
+    } catch (error) {
+        console.log(error);
+        resp.status(500).send({
+            success: false,
+            message: "error in password RESET API",
+            error
+        })
+
+    }
+}
+
+module.exports = { getuserController, updateUserController, updatePasswordController, resetPasswordController }
