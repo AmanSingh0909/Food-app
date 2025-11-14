@@ -70,7 +70,49 @@ const updateUserController = async (req, resp) => {
 
 // Password update
 const updatePasswordController = async (req, resp) => {
-
+    try {
+        //find user
+        const user = await userModel.findById(req.user.id)
+        //validation
+        if (!user) {
+            return resp.status(404).send({
+                success: false,
+                message: "User not found"
+            })
+        }
+        // get data from user
+        const { oldpassword, newPassword } = req.body
+        if (!oldpassword || !newPassword) {
+            return resp.status(500).send({
+                success: false,
+                message: "Please Provide old or new password"
+            })
+        }
+        //check user password | compare password
+        const isMatch = await bcrypt.compare(oldpassword, user.password)
+        if (!isMatch) {
+            return resp.status(500).send({
+                success: false,
+                message: "Invalid old password"
+            })
+        }
+        // Hashing password
+        var salt = bcrypt.genSaltSync(10)
+        const hashedpassword = await bcrypt.hash(newPassword, salt)
+        user.password = hashedpassword
+        await user.save()
+        resp.status(200).send({
+            success: true,
+            message: "Password Updated"
+        })
+    } catch (error) {
+        console.log(error);
+        resp.status(500).send({
+            success: false,
+            message: "Error in password update API",
+            error
+        })
+    }
 }
 
 // RESET PASSWORD
@@ -111,4 +153,23 @@ const resetPasswordController = async (req, resp) => {
     }
 }
 
-module.exports = { getuserController, updateUserController, updatePasswordController, resetPasswordController }
+// DELETE PROFILE ACCOUNT
+const deleteProfileController = async(req, resp) => {
+    try {
+        await userModel.findByIdAndDelete(req.params.id)
+        return resp.status(200).send({
+            success: true,
+            message: "YOur account has been deleted"
+        })
+    } catch (error) {
+        console.log(error);
+        resp.status(500).send({
+            success: false,
+            message: "Error in delete Profilr API",
+            error
+        })
+        
+    }
+}
+
+module.exports = { getuserController, updateUserController, updatePasswordController, resetPasswordController, deleteProfileController }
