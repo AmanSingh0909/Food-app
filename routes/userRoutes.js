@@ -19,4 +19,7 @@ router.post('/resetPassword', authmiddleware, resetPasswordController)
 
 // delete USER
 router.delete('/deleteUser/:id', authmiddleware, deleteProfileController)
+
+
+
 module.exports = router

@@ -15,7 +15,7 @@ const restaurantSchema = new mongoose.Schema({
     },
     pickup: {
         type: Boolean,
-        default: truncates
+        default: true
     },
     delivery: {
         type: Boolean,
