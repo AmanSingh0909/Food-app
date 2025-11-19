@@ -27,6 +27,7 @@ app.use('/api/v1/auth', require('./routes/authroutes'))
 app.use('/api/v1/user', require('./routes/userRoutes'))
 app.use('/api/v1/restaurant', require('./routes/restaurantroutes'))
 app.use('/api/v1/category', require('./routes/categoryRoutes'))
+app.use('/api/v1/food', require('./routes/foodRoutes'))
 
 
 
