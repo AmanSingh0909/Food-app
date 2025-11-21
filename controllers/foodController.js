@@ -111,10 +111,64 @@ const getFoodByResturantController = async (req, res) => {
         console.log(error)
         res.status(500).send({
             success: false,
-            message: "Error in Get Single Food API",
+            message: "Error in Get Food RESTURANT API",
             error
         })
     }
 }
 
-module.exports = { createFoodController, getAllFoodController, getSingleFoodController, getFoodByResturantController }
+//UPDATE FOOD
+const updateFoodController = async (req, res) => {
+    try {
+        const foodId = req.params.id;
+        const updateData = req.body;    
+        const updatedFood = await foodModel.findByIdAndUpdate(foodId, updateData, { new: true });
+        if (!updatedFood) {
+            return res.status(404).send({
+                success: false,
+                message: "Food Not Found"
+            });
+        }   
+        res.status(200).send({
+            success: true,
+            message: "Food Updated Successfully",
+            updatedFood
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Error in Update Food API",
+            error
+        })
+    }
+}
+
+//DELETE FOOD
+const deleteFoodController = async (req, res) => {
+    try {
+        const foodId = req.params.id;
+        const deletedFood = await foodModel.findById(foodId);
+        if (!deletedFood) {
+            return res.status(404).send({
+                success: false,
+                message: "Food Not Found"
+            });
+        } 
+        await foodModel.findByIdAndDelete(foodId);  
+        res.status(200).send({
+            success: true,
+            message: "Food Deleted Successfully",
+            deletedFood
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Error in Delete Food API",        
+            error
+        }) 
+    }
+}
+
+module.exports = { createFoodController, updateFoodController, getAllFoodController, getSingleFoodController, getFoodByResturantController, deleteFoodController }
